@@ -9,14 +9,13 @@ clc;
                         '*.tiff','TIFF format (*.tiff)';
                         '*.png','PNG format (*.png)'},'Select Input Image');
 if isequal(fileName,0)
-   disp('User selected Cancel');
+   disp('[1].User selected Cancel');
 else
-   disp(['User selected ', fullfile(path,fileName)]);
+   disp(['[1].User selected ', fullfile(path,fileName)]);
 end
 path=[path fileName];
 img=imread(path);
 
-imagesc(img)
 imgD = double (img);
 imwrite (uint8(imgD),'backup.jpg');
 
@@ -29,17 +28,15 @@ B    = imgD(:, :, 3);
  [UR, SR, VR] = SVD_Implementation(R);
  [UG, SG, VG] = SVD_Implementation(G);
  [UB, SB, VB] = SVD_Implementation(B);
- disp('SVD_Implementation calculat!');
-% [UR, SR, VR] = svd(R);
-% [UG, SG, VG] = svd(G);
-% [UB, SB, VB] = svd(B);
+ disp('[2].SVD_Implementation calculat!');
 
 %Initializare valori pentru generarea graficelor
 dispEr = [];
 numSVals = [];
 filesSize = [];
 executionTimes = [];
-
+peaksnr = [];
+snr = [];
 %Initializare valori pentru alegerea valorilor singulare (k)
 kStart = 2;
 kStop = 250;
@@ -74,14 +71,18 @@ while k < kStop
     %Generare valori singulare (k)     
     k = (length(kValues) + 1)^3;
     
+    [temp_peaksnr,temp_snr] = psnr(D, imgD);
+    peaksnr = [peaksnr temp_peaksnr];
+    snr = [snr temp_snr];
+
     executionTimes = [executionTimes toc];
 end
 timp_main = toc;
 
+
+disp('[3].Afisare grafice pentru SVD_implementation');
 %Grafic erori
 
-figure; 
-title('Erori in compresie');
 plot(numSVals, dispEr);
 grid on
 xlabel('Numar de valori singulare');
@@ -89,6 +90,7 @@ ylabel('Erori');
 title('Comparatia erorilor dintre imaginea initiala si cele procesate');
 
 %Grafic dimensiuni fisiere
+
 originalImgInfo = dir(fileName);
 originalImgSize = originalImgInfo.bytes / 1024;
 
@@ -103,43 +105,81 @@ hold on;
 plot(numSVals, filesSize,'b');
 legend('Dimensiune imagine originala','Dimensiune fisier backup','Dimensiune fisier dupa comprimare');
 grid on
+title('Comparatie dimensiuni fisiere');
 xlabel('Numar de valori singulare');
 ylabel('Dimensiuni fisiere dupa procesare (kb)');
-title('Comparatie dimensiuni fisiere');
 
-% timp_comparatie = comparatie(numeImagine,imgD,kValues);
-% % comparatie_svds(numeImagine,imgD,kValues)
-% timp_main
-% timp_comparatie
-% figure; 
-% plot (timp_main,'X')
-% hold on;
-% plot (timp_comparatie,'O')
-disp('comparatie')
+disp('[4].Calcul pentru comparatia cu SVD default')
 c_numSVals = [];
 c_dispEr = [];
-[c_totalTime, c_executionTimes,c_numSVals,c_dispEr,c_filesSize] = comparatie_functie_SVD_default(fileName,imgD,kValues);
+[c_totalTime, c_executionTimes,c_numSVals,c_dispEr,c_filesSize,c_peaksnr,c_snr] = comparatie_functie_SVD_default(fileName,imgD,kValues);
 
 
 %Grafic comparatie erori
+
 figure; 
-title('Comparatie erori in compresie');
 plot(numSVals, dispEr,'b');
 hold on;
 plot(c_numSVals, c_dispEr,'r');
 grid on
+title('Comparatie erori in compresie');
 xlabel('Numar de valori singulare');
 ylabel('Erori');
 legend('Erori folosind implementarea SVD proprie', 'Erori folosind functia predefinita SVD');
 
+%Grafic SNR
+
+figure; 
+plot(numSVals, snr);
+grid on
+title('SNR');
+xlabel('Numar de valori singulare');
+ylabel('Ratie');
+
+%Grafic PSNR
+
+figure; 
+plot(numSVals, peaksnr);
+grid on
+title('PSNR');
+xlabel('Numar de valori singulare');
+ylabel('Ratie');
+
 %Grafic comparatie dimensiuni fisiere
 figure; 
-title('Comparatie dimensiuni fisiere');
 plot(numSVals, filesSize,'b');
 hold on;
 plot(c_numSVals, c_filesSize,'r');
 grid on
+title('Comparatie dimensiuni fisiere');
 xlabel('Numar de valori singulare');
 ylabel('Dimensiune fisiere');
 legend('Dimensiuni folosind implementarea SVD proprie', 'Dimensiuni folosind functia predefinita SVD');
 
+
+%Grafic comparatie SNR
+figure; 
+plot(numSVals, snr, 'b');
+hold on;
+plot(numSVals, c_snr, 'r');
+grid on
+title('Comparatie SNR');
+xlabel('Numar de valori singulare');
+ylabel('Ratie');
+legend('SVD Implementare proprie', 'SVD default');
+
+%Grafic comparatie PSNR
+
+figure; 
+plot(numSVals, peaksnr, 'b');
+hold on;
+plot(numSVals, c_peaksnr, 'r');
+grid on
+title('Comparatie PSNR');
+xlabel('Numar de valori singulare');
+ylabel('Ratie');
+legend('SVD Implementare proprie', 'SVD default');
+
+ disp('[7].Terminat!');
+% timp_main
+% c_totalTime

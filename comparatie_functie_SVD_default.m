@@ -1,4 +1,4 @@
-function [c_totalTime, c_executionTimes,c_numSVals,c_dispEr,c_filesSize] = comparatie_functie_SVD_default(fileName,imgD,kValues)
+function [c_totalTime, c_executionTimes,c_numSVals,c_dispEr,c_filesSize,c_peaksnr,c_snr] = comparatie_functie_SVD_default(fileName,imgD,kValues)
 tic
 R    = imgD(:, :, 1);
 G    = imgD(:, :, 2);
@@ -7,13 +7,14 @@ B    = imgD(:, :, 3);
 [UR, SR, VR] = svd(R);
 [UG, SG, VG] = svd(G);
 [UB, SB, VB] = svd(B);
- disp('SVD (functie default) calculat!');
+ disp('[5].SVD (functie default) calculat!');
 %Initializare valori pentru generarea graficelor
 c_dispEr = [];
 c_numSVals = [];
 c_filesSize = [];
 c_executionTimes = [];
-
+c_peaksnr = [];
+c_snr = [];
 index = 1;
 while index <= length(kValues) 
     tic
@@ -41,8 +42,13 @@ while index <= length(kValues)
     t = toc;
     c_executionTimes = [c_executionTimes t];
     
+    [temp_peaksnr,temp_snr] = psnr(D, imgD);
+    c_peaksnr = [c_peaksnr temp_peaksnr];
+    c_snr = [c_snr temp_snr];
+    
+    
     index = index + 1;
-    disp (index);
+
 end
 c_totalTime = toc;
-disp('END functie comparatie');
+disp('[6].Final functie comparatie');
