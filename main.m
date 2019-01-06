@@ -87,7 +87,7 @@ plot(numSVals, dispEr);
 grid on
 xlabel('Numar de valori singulare');
 ylabel('Erori');
-title('Comparatia erorilor dintre imaginea initiala si cele procesate');
+title('Comparatia erorilor dintre imaginea initiala si cea procesata');
 
 %Grafic dimensiuni fisiere
 
@@ -115,18 +115,6 @@ c_dispEr = [];
 [c_totalTime, c_executionTimes,c_numSVals,c_dispEr,c_filesSize,c_peaksnr,c_snr] = comparatie_functie_SVD_default(fileName,imgD,kValues);
 
 
-%Grafic comparatie erori
-
-figure; 
-plot(numSVals, dispEr,'b');
-hold on;
-plot(c_numSVals, c_dispEr,'r');
-grid on
-title('Comparatie erori in compresie');
-xlabel('Numar de valori singulare');
-ylabel('Erori');
-legend('Erori folosind implementarea SVD proprie', 'Erori folosind functia predefinita SVD');
-
 %Grafic SNR
 
 figure; 
@@ -145,16 +133,37 @@ title('PSNR');
 xlabel('Numar de valori singulare');
 ylabel('Ratie');
 
+
+%
+%Comparatii
+%
+
+%Grafic comparatie erori
+
+figure; 
+plot(numSVals, dispEr,'b');
+hold on;
+plot(c_numSVals, c_dispEr,'r');
+grid on
+title('Comparatie erori in compresie');
+xlabel('Numar de valori singulare');
+ylabel('Erori');
+legend('Erori folosind implementarea SVD proprie', 'Erori folosind functia predefinita SVD');
+
 %Grafic comparatie dimensiuni fisiere
 figure; 
 plot(numSVals, filesSize,'b');
 hold on;
 plot(c_numSVals, c_filesSize,'r');
+hold on;
+plot ([0 kStop],[originalImgSize originalImgSize],'y-');
+hold on;
+plot ([0 kStop],[backupImgSize backupImgSize],'g-');
 grid on
 title('Comparatie dimensiuni fisiere');
 xlabel('Numar de valori singulare');
 ylabel('Dimensiune fisiere');
-legend('Dimensiuni folosind implementarea SVD proprie', 'Dimensiuni folosind functia predefinita SVD');
+legend('Dimensiuni folosind implementarea SVD proprie', 'Dimensiuni folosind functia predefinita SVD','Dimensiune imagine originala','Dimensiune fisier backup');
 
 
 %Grafic comparatie SNR
@@ -174,6 +183,7 @@ figure;
 plot(numSVals, peaksnr, 'b');
 hold on;
 plot(numSVals, c_peaksnr, 'r');
+
 grid on
 title('Comparatie PSNR');
 xlabel('Numar de valori singulare');
